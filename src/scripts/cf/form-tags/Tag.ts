@@ -178,7 +178,7 @@ namespace cf {
 
 			this.changeCallback = this.onDomElementChange.bind(this);
 			this.domElement.addEventListener("change", this.changeCallback, false);
-			
+
 			// remove tabIndex from the dom element.. danger zone... should we or should we not...
 			this.domElement.tabIndex = -1;
 
@@ -197,7 +197,7 @@ namespace cf {
 			// reg ex pattern is set on the Tag, so use it in our validation
 			if(this.domElement.getAttribute("pattern"))
 				this.pattern = new RegExp(this.domElement.getAttribute("pattern"));
-			
+
 			// if(this.type == "email" && !this.pattern){
 			// 	// set a standard e-mail pattern for email type input
 			// 	this.pattern = new RegExp("^[^@]+@[^@]+\.[^@]+$");
@@ -262,13 +262,24 @@ namespace cf {
 							isValid = testValue((<string[]>tagValue).toString(), conditional);
 						}
 
-						if(isValid) break;
-					}
+			// string comparisson
+			return <string>tagValue === conditional;
+		}
 
-					return isValid;
-				}
-				// arrays need to be the same
+		public static testConditions(tagValue: string | string[], condition: ConditionalValue):boolean{
+			if(typeof tagValue === "string"){
+				return condition.conditionals.some(conditional => (
+					Tag.testCondition(tagValue, conditional)
+				));
+			}else if (Array.isArray(tagValue)) {
+				return condition.conditionals.some(conditional => (
+					tagValue.some(value => (
+						Tag.testCondition(value, conditional)
+					))
+				));
 			}
+
+			return false;
 		}
 
 		public static isTagValid(element: HTMLElement):boolean{
@@ -297,7 +308,7 @@ namespace cf {
 			if(element.tagName.toLowerCase() == "option" && (!isTagFormless && innerText == "" || innerText == " ")){
 				return false;
 			}
-		
+
 			if(element.tagName.toLowerCase() == "select" || element.tagName.toLowerCase() == "option")
 				return true
 			else if(isTagFormless){
@@ -348,7 +359,7 @@ namespace cf {
 			this.refresh();
 
 			// this.disabled = false;
-			
+
 			// reset to initial value.
 			this.defaultValue = this.domElement.value = this.initialDefaultValue.toString();
 		}
@@ -372,7 +383,7 @@ namespace cf {
 				if("cf-conditional-"+tagName.toLowerCase() === condition.key.toLowerCase()){
 					return true;
 				}
-				
+
 			}
 
 			return false;
@@ -455,9 +466,9 @@ namespace cf {
 			const keys: any = this.domElement.attributes;
 			if(keys.length > 0){
 				this.conditionalTags = [];
-				
+
 				for (var key in keys) {
-					if (keys.hasOwnProperty(key)) {	
+					if (keys.hasOwnProperty(key)) {
 						let attr: any = keys[key];
 						if(attr && attr.name && attr.name.indexOf("cf-conditional") !== -1){
 							// conditional found
@@ -497,7 +508,7 @@ namespace cf {
 
 			if(this.domElement.getAttribute("cf-questions")){
 				this.questions = Helpers.getValuesOfBars(this.domElement.getAttribute("cf-questions"));
-				
+
 				if(this.domElement.getAttribute("cf-input-placeholder"))
 					this._inputPlaceholder = this.domElement.getAttribute("cf-input-placeholder");
 			}else if(this.domElement.parentNode && (<HTMLElement> this.domElement.parentNode).getAttribute("cf-questions")){
@@ -529,7 +540,7 @@ namespace cf {
 				this._label = this.domElement.getAttribute("cf-label");
 			}else{
 				const parentDomNode: Node = this.domElement.parentNode;
-				
+
 				if(parentDomNode){
 					// step backwards and check for label tag.
 					let labelTags: NodeListOf<Element> | Array<Element> = (<HTMLElement> parentDomNode).tagName.toLowerCase() == "label" ? [(<HTMLElement> parentDomNode)] : (<HTMLElement> parentDomNode).getElementsByTagName("label");
@@ -539,7 +550,7 @@ namespace cf {
 						const innerText: string = Helpers.getInnerTextOfElement((<any>parentDomNode));
 						if(innerText && innerText.length > 0)
 							labelTags = [(<HTMLLabelElement>parentDomNode)];
-						
+
 					}else if(labelTags.length > 0){
 						// check for "for" attribute
 						for (let i = 0; i < labelTags.length; i++) {

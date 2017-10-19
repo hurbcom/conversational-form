@@ -1879,6 +1879,14 @@ var cf;
             this.validationCallback = null;
             this.questions = null;
         };
+        Tag.testCondition = function (tagValue, conditional) {
+            if (typeof conditional === "object") {
+                // regex
+                return conditional.test(tagValue);
+            }
+            // string comparisson
+            return tagValue === conditional;
+        };
         Tag.testConditions = function (tagValue, condition) {
             var testValue = function (value, conditional) {
                 if (typeof conditional === "object") {
@@ -1927,6 +1935,7 @@ var cf;
                 }
                 // arrays need to be the same
             }
+            return false;
         };
         Tag.isTagValid = function (element) {
             if (element.getAttribute("type") === "hidden")

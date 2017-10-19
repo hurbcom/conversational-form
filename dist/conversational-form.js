@@ -4632,7 +4632,10 @@ var cf;
         });
         Object.defineProperty(ChatResponse.prototype, "added", {
             get: function () {
-                return !!this.el.parentNode.parentNode;
+                if (!this.el)
+                    return false;
+                var parentNode = this.el.parentNode;
+                return Boolean(parentNode && parentNode.parentNode);
             },
             enumerable: true,
             configurable: true
@@ -4730,6 +4733,9 @@ var cf;
         ChatResponse.prototype.setLinkToOtherReponse = function (response) {
             // link reponse to another one, keeping the update circle complete.
             this.responseLink = response;
+        };
+        ChatResponse.prototype.removeLinkToOtherResponse = function () {
+            this.responseLink = null;
         };
         ChatResponse.prototype.processResponseAndSetText = function () {
             var _this = this;
@@ -4838,6 +4844,8 @@ var cf;
             this.response = innerResponse.split("&&").join(" ");
         };
         ChatResponse.prototype.scrollTo = function () {
+            if (!this.container)
+                return;
             var y = this.el.offsetTop;
             var h = this.el.offsetHeight;
             if (!this.container && this.el)
@@ -4872,7 +4880,7 @@ var cf;
         * add one self to the chat list
         */
         ChatResponse.prototype.addSelf = function () {
-            if (this.el.parentNode != this.container) {
+            if (Boolean(this.container) && this.el.parentNode != this.container) {
                 this.container.appendChild(this.el);
             }
         };
@@ -4916,6 +4924,10 @@ var cf;
             this.container = null;
             this.uiOptions = null;
             this.onReadyCallback = null;
+            if (this.responseLink) {
+                this.responseLink.removeLinkToOtherResponse();
+                this.removeLinkToOtherResponse();
+            }
             if (this.onClickCallback) {
                 this.el.removeEventListener(cf.Helpers.getMouseEvent("click"), this.onClickCallback, false);
                 this.onClickCallback = null;
@@ -5059,7 +5071,6 @@ var cf;
                         robot.scrollTo();
                     });
                     if (_this.currentUserResponse) {
-                        // linked, but only if we should not ignore existing tag
                         _this.currentUserResponse.setLinkToOtherReponse(robot);
                         robot.setLinkToOtherReponse(_this.currentUserResponse);
                     }

@@ -6,6 +6,11 @@
   "directories": {
     "dist": "distribution"
   },
+  "scripts": {
+    "start": "gulp",
+    "dist": "gulp dist",
+    "test": "karma start"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/space10-community/conversational-form"

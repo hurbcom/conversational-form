@@ -12,6 +12,7 @@
 namespace cf {
 	// interface
 	export interface ITagGroupOptions{
+		context?: TagContext,
 		elements: Array <ITag>;
 		fieldset?: HTMLFieldSetElement;
 	}
@@ -45,6 +46,8 @@ namespace cf {
 		protected _inputPlaceholder: string;
 
 		public skipUserInput: boolean;
+
+		private _context: TagContext;
 
 		// event target..
 		public defaultValue: string; // not getting set... as taggroup differs from tag
@@ -153,11 +156,28 @@ namespace cf {
 				this._inputPlaceholder = this._fieldset.getAttribute("cf-input-placeholder");
 			}
 
+			this._context = <TagContext>{};
+			if (options.context) {
+				for (const key in options.context) {
+					if (!options.context.hasOwnProperty(key)) continue;
+
+					this._context[key] = options.context[key];
+				}
+			}
+
 			if(ConversationalForm.illustrateAppFlow)
 				if(!ConversationalForm.suppressLog) console.log('Conversational Form > TagGroup registered:', this.elements[0].type, this);
 
 			this.skipUserInput = false;
 		}
+
+        addContext(key: string, value: string|number):void {
+            this._context[key] = value;
+        }
+
+        removeContext(key: string):void {
+            delete this._context[key];
+        }
 
 		public dealloc(){
 			for (let i = 0; i < this.elements.length; i++) {
